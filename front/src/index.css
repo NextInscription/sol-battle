@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #101f22;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.glass-card {
+  background: rgba(28, 37, 39, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Wallet Modal overrides */
+.wallet-adapter-button {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.wallet-adapter-dropdown-list {
+  background-color: #1c2527 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  color: white !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background-color: #283639 !important;
+}

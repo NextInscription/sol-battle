@@ -1,0 +1,12 @@
+{
+  "network": "mainnet-beta",
+  "programId": "FzPt8DvFfzG9GUA56Yp22DCPgj8qgm6McCVRKoVYyADK",
+  "configPda": "DpMw62fUVHaEE2iyjPcpmZhjmrL7ahr9eyodeJYMpMs3",
+  "authority": "9VMBcLg8rA3V3scjrWR6y8w54yHRzWQd576SzH7SMQc7",
+  "config": {
+    "feeBps": "100",
+    "revealTimeoutSlots": "216000",
+    "noChallengerTimeoutSlots": "216000"
+  },
+  "deployedAt": "2026-01-18T12:40:54.982Z"
+}
