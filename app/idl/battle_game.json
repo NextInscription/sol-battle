@@ -1,0 +1,1122 @@
+{
+  "address": "FzPt8DvFfzG9GUA56Yp22DCPgj8qgm6McCVRKoVYyADK",
+  "metadata": {
+    "name": "battle_game",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Async 1v1 betting game with commit-reveal fairness"
+  },
+  "instructions": [
+    {
+      "name": "claim_creator_timeout_win",
+      "docs": [
+        "场景 2 超时判负：挑战者已揭示，但创建者拒绝揭示，挑战者获胜",
+        "",
+        "条件：",
+        "- 对战处于 WaitingCreatorReveal 状态",
+        "- 挑战者已揭示种子",
+        "- 创建者未揭示",
+        "- 超过较短的超时时间（如 100 slots）",
+        "",
+        "这是公平的：创建者看到挑战者的种子后拒绝揭示，应该受到惩罚"
+      ],
+      "discriminator": [
+        58,
+        123,
+        123,
+        193,
+        154,
+        220,
+        27,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "battle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "battle.creator",
+                "account": "Battle"
+              },
+              {
+                "kind": "account",
+                "path": "battle.battle_id",
+                "account": "Battle"
+              }
+            ]
+          }
+        },
+        {
+          "name": "challenger",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "fee_recipient",
+          "docs": [
+            "✅ 修复：添加地址约束"
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_refund_no_challenger",
+      "docs": [
+        "场景 1 退款：没有挑战者加入时，创建者可以取回押金",
+        "",
+        "条件：",
+        "- 对战处于 WaitingForChallenger 状态",
+        "- 超过 no_challenger_timeout_slots 时间",
+        "- 创建者取回全部押金（无惩罚）",
+        "",
+        "这是公平的：因为没有人加入，创建者不应受到惩罚"
+      ],
+      "discriminator": [
+        72,
+        82,
+        83,
+        129,
+        67,
+        12,
+        17,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "battle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "battle.creator",
+                "account": "Battle"
+              },
+              {
+                "kind": "account",
+                "path": "battle.battle_id",
+                "account": "Battle"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_battle",
+      "docs": [
+        "创建对战 - 第一步：创建者存入 SOL 并提交 commit"
+      ],
+      "discriminator": [
+        2,
+        249,
+        54,
+        216,
+        42,
+        99,
+        187,
+        102
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "battle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "account",
+                "path": "config.battle_count",
+                "account": "Config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "bet_amount",
+          "type": "u64"
+        },
+        {
+          "name": "commit_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "game_type",
+          "type": {
+            "defined": {
+              "name": "GameType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize_config",
+      "docs": [
+        "初始化平台配置账户"
+      ],
+      "discriminator": [
+        208,
+        127,
+        21,
+        1,
+        194,
+        190,
+        196,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "fee_bps",
+          "type": "u16"
+        },
+        {
+          "name": "reveal_timeout_slots",
+          "type": "u64"
+        },
+        {
+          "name": "no_challenger_timeout_slots",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "join_battle",
+      "docs": [
+        "加入对战并揭示种子 - 第二步：挑战者存入 SOL、提交 commit 并立即揭示种子",
+        "",
+        "安全性分析：",
+        "- 挑战者在加入时就揭示种子，创建者立即可以看到",
+        "- 但创建者已经在步骤1提交了哈希承诺 H(A)，无法修改种子 A",
+        "- 因此创建者无法根据挑战者的种子 B 来作弊",
+        "- 这消除了信息不对称问题，无需等待超时"
+      ],
+      "discriminator": [
+        126,
+        0,
+        69,
+        130,
+        127,
+        145,
+        54,
+        100
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "battle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "battle.creator",
+                "account": "Battle"
+              },
+              {
+                "kind": "account",
+                "path": "battle.battle_id",
+                "account": "Battle"
+              }
+            ]
+          }
+        },
+        {
+          "name": "challenger",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "bet_amount",
+          "type": "u64"
+        },
+        {
+          "name": "commit_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "seed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "reveal_seed",
+      "docs": [
+        "揭示种子 - 第三步：创建者揭示他们的随机种子（挑战者已在加入时揭示）"
+      ],
+      "discriminator": [
+        196,
+        119,
+        194,
+        112,
+        156,
+        211,
+        239,
+        105
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "battle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "battle.creator",
+                "account": "Battle"
+              },
+              {
+                "kind": "account",
+                "path": "battle.battle_id",
+                "account": "Battle"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "seed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "settle_battle",
+      "docs": [
+        "结算对战 - 第四步：计算结果并分配奖励"
+      ],
+      "discriminator": [
+        4,
+        146,
+        32,
+        157,
+        82,
+        216,
+        214,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "battle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "battle.creator",
+                "account": "Battle"
+              },
+              {
+                "kind": "account",
+                "path": "battle.battle_id",
+                "account": "Battle"
+              }
+            ]
+          }
+        },
+        {
+          "name": "winner",
+          "docs": [
+            "✅ 修复：添加地址约束，防止账户替换攻击"
+          ],
+          "writable": true
+        },
+        {
+          "name": "fee_recipient",
+          "docs": [
+            "✅ 修复：添加地址约束，确保手续费发到正确的账户"
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_config",
+      "docs": [
+        "更新平台配置"
+      ],
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_fee_bps",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "new_reveal_timeout_slots",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Battle",
+      "discriminator": [
+        81,
+        148,
+        121,
+        71,
+        63,
+        166,
+        116,
+        24
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BattleCreated",
+      "discriminator": [
+        33,
+        66,
+        118,
+        96,
+        130,
+        0,
+        113,
+        218
+      ]
+    },
+    {
+      "name": "BattleJoined",
+      "discriminator": [
+        135,
+        195,
+        19,
+        119,
+        186,
+        10,
+        187,
+        48
+      ]
+    },
+    {
+      "name": "BattleSettled",
+      "discriminator": [
+        227,
+        254,
+        73,
+        116,
+        30,
+        106,
+        42,
+        155
+      ]
+    },
+    {
+      "name": "SeedRevealed",
+      "discriminator": [
+        28,
+        28,
+        203,
+        69,
+        255,
+        141,
+        240,
+        236
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidBattleState",
+      "msg": "Invalid battle state for this operation"
+    },
+    {
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Unauthorized to perform this operation"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidBetAmount",
+      "msg": "Invalid bet amount"
+    },
+    {
+      "code": 6003,
+      "name": "BetAmountMismatch",
+      "msg": "Bet amount does not match"
+    },
+    {
+      "code": 6004,
+      "name": "CannotChallengeSelf",
+      "msg": "Cannot challenge yourself"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidCommitment",
+      "msg": "Invalid commitment hash"
+    },
+    {
+      "code": 6006,
+      "name": "AlreadyRevealed",
+      "msg": "Already revealed seed"
+    },
+    {
+      "code": 6007,
+      "name": "AlreadySettled",
+      "msg": "Battle already settled"
+    },
+    {
+      "code": 6008,
+      "name": "RevealTimeoutNotReached",
+      "msg": "Reveal timeout not reached yet"
+    },
+    {
+      "code": 6009,
+      "name": "RevealTimeout",
+      "msg": "Reveal timeout exceeded"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidFeeBasisPoints",
+      "msg": "Invalid fee basis points (must be <= 10000)"
+    },
+    {
+      "code": 6011,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6012,
+      "name": "NotYetTimeout",
+      "msg": "Timeout not reached yet"
+    }
+  ],
+  "types": [
+    {
+      "name": "Battle",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "battle_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "challenger",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "bet_amount",
+            "type": "u64"
+          },
+          {
+            "name": "commit_creator",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "commit_challenger",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "seed_creator",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "seed_challenger",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "game_type",
+            "type": {
+              "defined": {
+                "name": "GameType"
+              }
+            }
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "BattleState"
+              }
+            }
+          },
+          {
+            "name": "winner",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "created_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "joined_at_slot",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "config_snapshot",
+            "type": {
+              "defined": {
+                "name": "ConfigSnapshot"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BattleCreated",
+      "docs": [
+        "事件：Battle 创建"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "battle_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "bet_amount",
+            "type": "u64"
+          },
+          {
+            "name": "created_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "reveal_deadline_slot",
+            "type": "u64"
+          },
+          {
+            "name": "refund_deadline_slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BattleJoined",
+      "docs": [
+        "事件：Battle 加入"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "battle_id",
+            "type": "u64"
+          },
+          {
+            "name": "challenger",
+            "type": "pubkey"
+          },
+          {
+            "name": "joined_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "reveal_deadline_slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BattleSettled",
+      "docs": [
+        "事件：Battle 结算"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "battle_id",
+            "type": "u64"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BattleState",
+      "docs": [
+        "对战状态"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "WaitingForChallenger"
+          },
+          {
+            "name": "WaitingCreatorReveal"
+          },
+          {
+            "name": "BothRevealed"
+          },
+          {
+            "name": "Settled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "reveal_timeout_slots",
+            "type": "u64"
+          },
+          {
+            "name": "no_challenger_timeout_slots",
+            "type": "u64"
+          },
+          {
+            "name": "battle_count",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigSnapshot",
+      "docs": [
+        "配置快照：在 battle 创建时保存配置，防止管理员修改影响已存在的 battle"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "reveal_timeout_slots",
+            "type": "u64"
+          },
+          {
+            "name": "no_challenger_timeout_slots",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GameType",
+      "docs": [
+        "游戏类型"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "CoinFlip"
+          },
+          {
+            "name": "DiceRoll"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SeedRevealed",
+      "docs": [
+        "事件：种子揭示"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "battle_id",
+            "type": "u64"
+          },
+          {
+            "name": "revealer",
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
+  ]
+}
